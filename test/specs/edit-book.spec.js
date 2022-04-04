@@ -1,57 +1,105 @@
-// const expect = require('chai').expect;
-// const axios = require('axios');
-// const faker = require('faker').random;
+const expect = require("chai").expect;
+const axios = require("axios");
 
-// const baseUrl = 'http://localhost:8080';
-// let createdAnimal;
-// let updatedAnimal;
-// let response;
-// describe('Given a created animal', () => {
-//     before(async () => {
-//         const animal = {
-//             name: `Mr ${faker.words(2)}`,
-//             breed: "Bengalí",
-//             gender: "Female",
-//             isVaccinated: true,
-//             vaccines: [
-//                 "rabia",
-//                 "leucemia",
-//                 "parvovirus"
-//             ]
-//         };
+const baseUrl = "http://localhost:8080";
+let createdBook;
+let updatedBook;
+let response;
+describe("Given a created book", () => {
+  before(async () => {
+    const book = {
+      name: "Ulyses",
+      author: "James Joyce",
+    };
 
-//         createdAnimal = (await axios.post(`${baseUrl}/animals`, animal)).data;
+    createdBook = (await axios.post(`${baseUrl}/books`, book)).data;
+  });
 
-//     });
+  describe("When the user wants to update the book", () => {
+    before(async () => {
+      updatedBook = {
+        name: "Ulises",
+        author: "James Joice",
+      };
 
-//     describe('When the user wants to update the animal', () => {
-//         before(async () => {
-//             updatedAnimal = {
-//                 name: `Mr ${faker.words(2)}`,
-//                 breed: "Criollo",
-//                 gender: "Male",
-//                 isVaccinated: false,
-//                 vaccines: [
-//                     "rabia"
-//                 ]
-//             };
+      response = await axios.put(
+        `${baseUrl}/books/${createdBook.name}`,
+        updatedBook
+      );
+    });
 
-//             response = await axios.put(`${baseUrl}/animals/${createdAnimal.name}`, updatedAnimal)
-//         });
+    it("Then it should reply an OK status code", () => {
+      expect(response.status).eql(200);
+    });
 
-//         it('Then should have an OK status code', () => {
-//             expect(response.status).eql(200);
-//         });
+    it("Then it should return a book whose name and author's name is modified", async () => {
+      const book = response.data;
+      expect(book.name).eql(updatedBook.name);
+      expect(book.author).eql(updatedBook.author);
+    });
 
-//         it('Then should return an animal but the name should not change', async () => {
-//             expect(response.data.name).eql(createdAnimal.name);
-//         });
-//         it('Then should return an animal with the breed, gender and vaccines updated', async () => {
-//             const animal = response.data;
-//             expect(animal.breed).eql(updatedAnimal.breed);
-//             expect(animal.gender).eql(updatedAnimal.gender);
-//             expect(animal.isVaccinated).eql(updatedAnimal.isVaccinated);
-//             expect(animal.vaccines).eql(updatedAnimal.vaccines);
-//         });
-//     });
-// });
+    it("Then it should return a json as a response", () => {
+      const headers = response.headers;
+
+      // Assert
+      expect(headers["content-type"]).to.contain("application/json");
+    });
+  });
+
+  describe("When the user wants to update the book with empty values", async () => {
+    before(async () => {
+      // Arrange
+      updatedBook = {
+        name: "",
+        author: "",
+      };
+
+      // Act
+      response = await axios.put(
+        `${baseUrl}/books/${createdBook.name}`,
+        updatedBook
+      );
+    });
+
+    it("Then should not allow an empty book to be created", () => {
+      // Assert
+      expect(response.status).to.not.eql(200);
+    });
+  });
+
+  describe("When the user wants to update the book with no name or no author's name", () => {
+    before(async () => {
+      // Arrange
+      updatedBook = {
+        name: "Ulyses",
+        author: "",
+      };
+    });
+
+    it("Then it should not allow a book with no author name to be created", async () => {
+      // Act
+      response = await axios.put(
+        `${baseUrl}/books/${createdBook.name}`,
+        updatedBook
+      );
+
+      // Assert
+      expect(response.status).to.not.eql(200);
+    });
+
+    it("Then it should not allow a book with no name to be created", async () => {
+      // Arrange
+      book.author = "James Joyce";
+      book.name = "";
+
+      // Act
+      response = await axios.put(
+        `${baseUrl}/books/${createdBook.name}`,
+        updatedBook
+      );
+
+      // Assert
+      expect(response.status).to.not.eql(200);
+    });
+  });
+});
