@@ -65,6 +65,7 @@ describe("Given I want to edit a book", () => {
       );
     });
 
+    // This test fails because there is a bug with the API
     it("Then it should not allow an empty book to be created", () => {
       // Assert
       expect(response.status).to.not.eql(200);
@@ -80,6 +81,7 @@ describe("Given I want to edit a book", () => {
       };
     });
 
+    // This test fails because there is a bug with the API
     it("Then it should not allow a book with no author name to be created", async () => {
       // Act
       response = await axios.put(
@@ -91,6 +93,7 @@ describe("Given I want to edit a book", () => {
       expect(response.status).to.not.eql(200);
     });
 
+    // This test fails because there is a bug with the API
     it("Then it should not allow a book with no name to be created", async () => {
       // Arrange
       book.author = "James Joyce";
